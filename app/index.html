@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <style>
+        body {
+            background-attachment: fixed;
+            font-family: Verdana, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            min-width: 960px;
+            text-align: center;
+        }
+
+        span {
+            color: black;
+        }
+
+        canvas {
+            background-size: cover;
+            left: 0;
+            position: fixed;
+            top: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+<!--<div style="position: fixed; bottom: 20px; left: 20px; z-index: 100; opacity: 0.9;">-->
+    <!--<br>-->
+    <!--<div>弹幕数量: <span id="num"></span></div>-->
+    <!--<div id="status"></div>-->
+    <!--<br>-->
+<!--</div>-->
+<script>
+    var danSize = 0.3
+    const {ipcRenderer} = require("electron");
+
+    ipcRenderer.on("sendTest", (event, message) => {
+        output.push(createDanmaku('测试数据', danSize))
+    });
+
+    ipcRenderer.on("sizeChange", (event, message) => {
+        if(message) {
+            danSize = message
+        }
+    });
+
+    ipcRenderer.on("danmu", (event, message) => {
+        let data = JSON.parse(message)
+        output.push(createDanmaku(data.message, danSize))
+    });
+
+    ipcRenderer.on("remove", (event, message) => {
+        clearRect()
+    });
+
+    //websocket
+    // var wsServer = 'ws://192.168.0.8:8886/webSocket';
+    // var websocket= new WebSocket(wsServer);
+    //
+    // websocket.onopen = function (evt) {
+    //     console.log("连接成功");
+    // };
+    // websocket.onclose = function (evt) {
+    //     console.log("断开连接");
+    // };
+    // websocket.onmessage = function (evt) {
+    //     console.log('接收数据',JSON.parse(evt.data));
+    //     let data = JSON.parse(evt.data)
+    //     output.push(createDanmaku(data.message, 0.3))
+    // };
+    // setInterval(function () {
+    //     output.push(createDanmaku(
+    //         '12312312',
+    //         0.3,
+    //         '#aaa'
+    //     ))
+    // },1000)
+
+
+    //弹幕
+    var output = [];
+
+    var canvas = document.createElement("canvas");
+    var context = canvas.getContext("2d");
+    document.body.appendChild(canvas);
+
+    var W = window.innerWidth;
+    var H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+    var fontSize = H / 10;
+
+    window.onresize = function () {
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.width = W;
+        canvas.height = H;
+        fontSize = H / 10;
+    }
+
+    function createDanmaku(text, size) {
+        var danmaku = {
+            speed: (W / 400) * (Math.random() * 0.5 + 0.75),
+            x: W,
+            y: Math.random() * H * 4 / 5 + fontSize,
+            text: text,
+            size: fontSize * size
+        };
+        danmaku.color = '#' + Math.floor(Math.random() * 16777215).toString(16)
+        // var reg = new RegExp("^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$");
+        // danmaku.color = reg.test(color) ? color : availableColor[Math.floor(Math.random() * availableColor.length)];
+        return danmaku;
+    }
+
+    function draw(obj) {
+        context.font = `700 ${obj.size}px Microsoft YaHei`;
+        context.fillStyle = obj.color;
+        context.fillText(obj.text, obj.x, obj.y);
+    }
+
+    //清屏
+    function clearRect() {
+        // context.clearRect(0, 0, W, H);
+        output = []
+    }
+
+    setInterval(() => {
+        context.clearRect(0, 0, W, H);
+        output = output.filter(item => {
+            draw(item);
+            item.x -= item.speed;
+            return item.x >= -context.measureText(item.text).width;
+        });
+    }, 20);
+</script>
+</body>
+</html>

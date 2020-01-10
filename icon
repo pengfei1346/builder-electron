@@ -1,0 +1,15 @@
+"mac": {
+			"icon": "ico/favicon.icns",
+			"target": [
+				"dmg",
+				"zip"
+			]
+		},
+		"win": {
+			"icon": "ico/favicon.ico",
+			"legalTrademarks": "personal",
+			"target": [
+				"nsis",
+				"zip"
+			]
+		},

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>弹幕</title>
+<link rel="stylesheet" href="cdn/3.3.7/css/bootstrap.min.css">
+	<style>
+		.row{
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+<div class="container" style="margin: 0 20px 20px 20px;">
+	<div class="row">
+		<h4>欢迎使用</h4>
+	</div>
+
+	<div class="row">
+		<div class="form-group">
+			<div style="margin-bottom: 10px">弹幕频道</div>
+			<input type="text" class="form-control" value="yourwebsocketurl" placeholder="default" id="channel">
+		</div>
+	</div>
+	<div class="row" style="padding-bottom: 10px">
+		<div style="margin-bottom: 10px">字体大小</div>
+		<input type="text" class="form-control" placeholder="字体大小:三位整数,默认300" id="font" onblur="getFont()">
+	</div>
+	<div class="row">
+		<button class="btn btn-success" onclick="wsReload()">连接弹幕频道</button>
+	</div>
+
+	<div class="row">
+		<button class="btn btn-primary" onclick="panelSubmit()" id="submit">开启弹幕窗口</button>
+	</div>
+	<div class="row">
+		<button class="btn btn-primary" onclick="sendTest()">测试弹幕</button>
+	</div>
+	<div class="row">
+		<button class="btn btn-primary" onclick="clearAll()">清空弹幕列表</button>
+	</div>
+</div>
+
+<script src="js/settings.js"></script>
+<script src="js/mainwindow.js"></script>
+<script src="js/wsconnect.js"></script>
+<script>
+	function getWsUrl() {
+		var reg = new RegExp(/[\x00-\xff]+/g);
+		var wsUrl = document.getElementById("channel").value || "yourwebsocketurl";
+		return 'ws://' + wsUrl;
+	}
+
+	function panelSubmit(event) {
+		if (mainWindow) {
+			document.getElementById("submit").innerHTML = "开启弹幕窗口";
+			document.getElementById("submit").classList.remove("btn-danger");
+			document.getElementById("submit").classList.add("btn-primary");
+			closeWindow();
+		} else {
+			document.getElementById("submit").innerHTML = "关闭弹幕窗口";
+			document.getElementById("submit").classList.remove("btn-primary");
+			document.getElementById("submit").classList.add("btn-danger");
+			createWindow();
+		}
+	}
+
+	function clearAll(index) {
+		if (mainWindow) {
+			mainWindow.webContents.send("remove");
+		}else {
+			message("请先开启弹幕");
+		}
+	}
+
+	function sendTest() {
+		if (mainWindow) {
+			ws.send(JSON.stringify({
+				no: 0,
+				name: 'asdasd',
+				photo: 'this.photo',
+				message: '我是测试'
+			}))
+			// mainWindow.webContents.send("sendTest");
+		}else {
+			message("请先开启弹幕");
+		}
+	}
+
+	function getFont() {
+		var danFont = document.getElementById("font").value || 300;
+		var size = danFont/1000
+		if(mainWindow) {
+			mainWindow.webContents.send("sizeChange", size);
+		}
+	}
+</script>
+</body>
+</html>

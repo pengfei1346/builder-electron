@@ -1,0 +1,40 @@
+{
+	"name": "danmu",
+	"author": "cpf",
+	"version": "1.0.0",
+	"description": "danmu client for desktop platform.",
+	"main": "main.js",
+	"scripts": {
+		"start": "electron .",
+		"build": "electron-builder",
+		"pack:mac": "electron-builder --mac",
+		"pack:win": "electron-builder --win --x64"
+	},
+	"build": {
+		"productName": "danmu",
+		"artifactName": "${productName}-${version}.${ext}",
+		"mac": {
+			"target": [
+				"dmg",
+				"zip"
+			]
+		},
+		"win": {
+			"legalTrademarks": "personal",
+			"target": [
+				"nsis",
+				"zip"
+			]
+		},
+		"nsis": {
+			"allowToChangeInstallationDirectory": true,
+			"oneClick": false,
+			"menuCategory": true,
+			"allowElevation": false
+		}
+	},
+	"devDependencies": {
+		"electron": "^7.1.8",
+		"electron-builder": "^21.2.0"
+	}
+}
